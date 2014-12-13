@@ -1,9 +1,5 @@
 var TodoModel = Xiaoming.Model.setup('todo', ['name', 'done']);
 
-var todo = TodoModel.create({name: 'eat lunch'});
-
-console.log(TodoModel)
-
 var Todos = Xiaoming.Controller.create({
     el: '#view',
 
@@ -12,24 +8,39 @@ var Todos = Xiaoming.Controller.create({
     },
 
     render: function (data) {
-        return this.template.render(data);
+        return this.template().render(data);
     },
 
     init: function () {
-        TodoModel.listenTo('create', this.addOne);
+        this.$list = $('.items');
+        this.$input = $('#todoName');
+
+        TodoModel.listenTo('create', this.proxy(this.addOne));
+        TodoModel.listenTo('destory', this.proxy(this.destory));
+    },
+
+    create: function () {
+        var name = this.$input.val().trim();
+        var newTodo = {name: name, done: false};
+
+        TodoModel.create(newTodo);
+    },
+
+    destory: function (item) {
+        console.log(this)
     },
 
     events: {
+        '.create click': 'create',
         '.remove click': 'destory'
     },
 
     addOne: function (item) {
-        console.log('aaa')
+        var $view = this.render(item);
+        this.$list.append($view);
     },
-
-    destory: function () {
-        console.log('remove')
-    }
 });
 
 Todos.init()
+
+var todo = TodoModel.create({name: 'eat lunch', done: false});

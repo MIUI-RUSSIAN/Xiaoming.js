@@ -3,6 +3,13 @@ var exports = this;
 ~function ($) {
     var Xiaoming = {};
 
+    Xiaoming.guid = function () {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+            var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+            return v.toString(16);
+        }).toUpperCase();
+    }
+
     var Class = Xiaoming.Class = {
         inherited: function () {},
         created: function () {},
@@ -106,8 +113,9 @@ var exports = this;
             
             if (!this._callbacks || !this._callbacks[event]) return this;
 
-            for (var i = 0, len = this._callbacks[event].length; i < len; i++)
+            for (var i = 0, len = this._callbacks[event].length; i < len; i++) {
                 this._callbacks[event][i].apply(this, args);
+            }
 
             return this;
         },
@@ -147,7 +155,18 @@ var exports = this;
             return record;
         },
 
+        update: function (id, attrs) {
+            this.find(id).load(attrs).save();
+        },
+
+        destroy: function (id) {
+            this.find(id).destroy();
+        },
+
         created: function () {
+            this.records = {};
+            this.attributes = [];
+
             this.listenTo('create', this.proxy(function (record) {
                 this.trigger('change', 'create', record);
             }));
@@ -160,6 +179,12 @@ var exports = this;
                 this.trigger('change', 'destroy', record);
             }));
         },
+
+        find: function (id) {
+            var record = this.records[id];
+
+            return (record ? record.clone() : null);
+        }
     });
 
     Model.include({
@@ -172,6 +197,32 @@ var exports = this;
                 this[attr] = attrs[attr];
         },
 
+        dup: function () {
+            var result = this.parent.init(this.getAttr());
+            result.isNew = this.isNew;
+            return result;
+        },
+
+        load: function (attrs) {
+            for (var name in attrs)
+                this[name] = attrs[name];
+        },
+
+        toJSON: function () {
+            return this.getAttr();
+        },
+
+        getAttr: function () {
+            var attrs = {};
+
+            for (var i = 0, len = this.parent.attributes.length; i < len; i++) {
+                attrs[this.parent.attributes[i]] = this[this.parent.attributes[i]]
+            }
+
+            attrs.id = this.id;
+            return attrs;
+        },
+
         save: function () {
             this.isNew ? this.create() : this.update();
             this.trigger('save', this);
@@ -179,12 +230,30 @@ var exports = this;
             return this;
         },
 
+        clone: function () {
+            if (Object.create) {
+                klass = Object.create(this)
+            } else {
+                function f() {};
+                f.prototype = this;
+                klass = new f();
+            }
+
+            return klass;
+        },
+
         create: function () {
-            console.log(this)
-            this.trigger('create', '1234')
+            if (!this.id) this.id = Xiaoming.guid();
+
+            var records = this.parent.records;
+            records[this.id] = this.dup();
+
+            this.isNew = false;
+            this.trigger('create', records[this.id].clone());
         },
 
         destroy: function () {
+            this.parent.destroy(this.id);
             this.trigger('destroy', this);
         },
 
@@ -195,7 +264,7 @@ var exports = this;
         },
 
         trigger: function () {
-            return this.parent.trigger.apply(this, arguments);
+            return this.parent.trigger.apply(this.parent, arguments);
         }
     });
 

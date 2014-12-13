@@ -6,20 +6,39 @@
 
 	<link rel="stylesheet" href="http://cdn.staticfile.org/twitter-bootstrap/3.3.0/css/bootstrap.min.css">
 </head>
-<body>
+<body class="container">
+	<!-- Templates -->
+
+	<script id="todoTmpl" type="text/template">
+		<div class="todo">
+			{@if done}
+				<input type="checkbox" checked>
+			{@else}
+				<input type="checkbox">
+			{@/if}
+			
+			<span>${name}</span>
+			<i class="remove glyphicon glyphicon-remove"></i>
+		</div>
+	</script>
+
+	<!-- End Templates -->
+
 	<main id="view">
 		<h1>Todo</h1>
 
 		<form id="newTodo">
-			<input type="text"><button class="create btn btn-primary btn-sm" type="button">add one</button>
+			<div class="row">
+				<div class="col-sm-2">
+					<input id="todoName" class="form-control" type="text">
+				</div>
+
+				<button class="create btn btn-primary" type="button">add one</button>
+			</div>
 		</form>
 
 		<ul class="items"></ul>
 	</main>
-
-	<script id="todoTmpl" type="text/template">
-		<p class="todo"></p><button class="remove" type="button">delete</button>
-	</script>
 	
 	<script src="http://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
 	<script src="juicer.js"></script>
