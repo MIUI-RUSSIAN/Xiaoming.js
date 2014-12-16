@@ -1,46 +1,94 @@
-var TodoModel = Xiaoming.Model.setup('todo', ['name', 'done']);
+var exports = this;
 
-var Todos = Xiaoming.Controller.create({
-    el: '#view',
+jQuery(function ($) {
+    exports.Url = Xiaoming.Model.setup('url', ['short_url', 'long_url']);
 
-    template: function () {
-        return juicer($('#todoTmpl').html());
-    },
+    Url.include({
+        fetchUrl: function () {
+            if (!this.short_url) {
+                $.bitly(this.long_url, this.proxy(function (result) {
+                    this.updateAttr('short_url', result);
+                }));
+            }
+        }
+    });
 
-    render: function (data) {
-        return this.template().render(data);
-    },
+    Url.listenTo('create', function (record) {
+        record.fetchUrl();
+    });
 
-    init: function () {
-        this.$list = $('.items');
-        this.$input = $('#todoName');
+    exports.Urls = Xiaoming.Controller.create({
+        init: function () {
+            // this.item.listenTo('update', this.render);
+            // this.item.listenTo('destroy', this.remove);
+        },
 
-        TodoModel.listenTo('create', this.proxy(this.addOne));
-        TodoModel.listenTo('destory', this.proxy(this.destory));
-    },
+        events: {
+            'click .destroy': 'destroy'
+        },
 
-    create: function () {
-        var name = this.$input.val().trim();
-        var newTodo = {name: name, done: false};
+        template: function (urls) {
+            return juicer($('#urlTpl').html(), urls);
+        },
 
-        TodoModel.create(newTodo);
-    },
+        render: function () {
+            this.el.html(this.template(this.item));
+            return this;
+        },
 
-    destory: function (item) {
-        console.log(this)
-    },
+        remove: function () {
+            this.el.remove();
+        },
 
-    events: {
-        '.create click': 'create',
-        '.remove click': 'destory'
-    },
+        destroy: function () {
+            this.item.destroy();
+        }
+    });
 
-    addOne: function (item) {
-        var $view = this.render(item);
-        this.$list.append($view);
-    },
+    exports.UrlsList = Xiaoming.Controller.create({
+        init: function () {
+            this.$items = $('#items');
+            this.$form = $('form');
+            this.$input = $('input');
+
+            Url.listenTo('create', this.proxy(this.addOne));
+            Url.listenTo('refresh', this.proxy(this.addAll));
+        },
+
+        addOne: function (url) {
+            var view = Urls.init({item: url.toJSON()});
+            this.$items.append(view.render().el);
+        },
+
+        addAll: function () {
+            Url.each(this.addOne);
+        },
+
+        events: {
+            'form submit': 'create'
+        },
+
+        create: function (e) {
+            e.preventDefault();
+
+            var longUrl = this.$input.val().trim();
+
+            if (!longUrl) return;
+
+            Url.create({long_url: longUrl});
+
+            this.$input.val('').focus();
+        }
+    });
+
+    exports.App = Xiaoming.Controller.create({
+        el: $('body'),
+
+        init: function () {
+            UrlsList.init({el: $('#view')});
+        }
+    });
+
+    App.init()
 });
 
-Todos.init()
-
-var todo = TodoModel.create({name: 'eat lunch', done: false});

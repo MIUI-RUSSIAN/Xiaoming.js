@@ -2,45 +2,41 @@
 <html lang="en">
 <head>
 	<meta charset="UTF-8">
-	<title>Todo</title>
+	<title>Bit.ly</title>
 
 	<link rel="stylesheet" href="http://cdn.staticfile.org/twitter-bootstrap/3.3.0/css/bootstrap.min.css">
 </head>
 <body class="container">
 	<!-- Templates -->
 
-	<script id="todoTmpl" type="text/template">
-		<div class="todo">
-			{@if done}
-				<input type="checkbox" checked>
-			{@else}
-				<input type="checkbox">
-			{@/if}
-			
-			<span>${name}</span>
-			<i class="remove glyphicon glyphicon-remove"></i>
+	<script id="urlTpl" type="text/template">
+		<div class="url">
+			<p>${long_url}</p>
+			<p>${short_url}</p>
+			<i class='glyphicon glyphicon-remove'>
 		</div>
 	</script>
 
 	<!-- End Templates -->
 
 	<main id="view">
-		<h1>Todo</h1>
+		<h1>Bit.ly</h1>
 
-		<form id="newTodo">
+		<form id="newUrl">
 			<div class="row">
-				<div class="col-sm-2">
-					<input id="todoName" class="form-control" type="text">
+				<div class="col-sm-5">
+					<input id="urlName" class="form-control" type="text" placeholder="Enter a URL">
 				</div>
 
-				<button class="create btn btn-primary" type="button">add one</button>
+				<button class="create btn btn-primary">add one</button>
 			</div>
 		</form>
 
-		<ul class="items"></ul>
+		<ul id="items"></ul>
 	</main>
 	
 	<script src="http://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script>
+	<script src="jquery.bitly.js"></script>
 	<script src="juicer.js"></script>
 	<script src="xiaoming.js"></script>
 	<script src="app.js"></script>

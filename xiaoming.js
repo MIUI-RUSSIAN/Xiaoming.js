@@ -3,6 +3,7 @@ var exports = this;
 ~function ($) {
     var Xiaoming = {};
 
+    // 生成随机的guid
     Xiaoming.guid = function () {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
             var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
@@ -43,6 +44,7 @@ var exports = this;
             return klass;
         },
 
+        // 生成实例
         init: function () {
             var instance;
 
@@ -223,6 +225,16 @@ var exports = this;
             return attrs;
         },
 
+        updateAttr: function (name, value) {
+            this[name] = value;
+            return this.save();
+        },
+
+        updateAttrs: function (attrs) {
+            this.load(attrs);
+            return this.save();
+        },
+
         save: function () {
             this.isNew ? this.create() : this.update();
             this.trigger('save', this);
@@ -270,8 +282,15 @@ var exports = this;
 
     // Controller
     var Controller = Xiaoming.Controller = Class.create({
-        initializer: function () {
-            this.el = this.el || 'body';
+        initializer: function (options) {
+            this.options = options;
+
+            for (var option in options) {
+                this[option] = options[option];
+            }
+
+            this.el = this.el || document.createElement('div');
+            this.el = $(this.el);
 
             var events = this.events;
 
@@ -282,7 +301,7 @@ var exports = this;
                     var element = item.shift();
                     var event = item.pop();
 
-                    $(this.el).on(event, element, this.proxy(this[events[i]]))
+                    this.el.on(event, element, this.proxy(this[events[i]]))
                 }
             }
         }
