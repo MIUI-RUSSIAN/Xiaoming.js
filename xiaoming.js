@@ -252,13 +252,7 @@ var exports = this;
         },
 
         clone: function () {
-            if (Object.create) {
-                klass = Object.create(this)
-            } else {
-                function f() {};
-                f.prototype = this;
-                klass = new f();
-            }
+            var klass = Object.create(this)
 
             return klass;
         },
@@ -268,6 +262,8 @@ var exports = this;
 
             var records = this.parent.records;
             records[this.id] = this.dup();
+
+            console.log(this)
 
             this.isNew = false;
             this.trigger('create', records[this.id].clone());
