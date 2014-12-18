@@ -3,6 +3,15 @@ var exports = this;
 ~function ($) {
     var Xiaoming = {};
 
+    // Object.create 方法兼容 IE9 以下
+    if (!Object.create) {
+        Object.create = function (klass) {
+            function f() {};
+            f.prototype = klass;
+            return new f();
+        }
+    }
+
     // 生成随机的guid
     Xiaoming.guid = function () {
         return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -12,7 +21,10 @@ var exports = this;
     }
 
     var Class = Xiaoming.Class = {
+        // 通过 create 创建新的类后，触发 inherited 方法，参数为新的类
         inherited: function () {},
+
+        // 通过 create 创建新的类后，触发 created 方法
         created: function () {},
 
         prototype: {
@@ -21,21 +33,14 @@ var exports = this;
         },
 
         create: function (include, extend) {
-            var klass;
-
-            // 兼容 IE9 以下
-            if (Object.create) {
-                klass = Object.create(this)
-            } else {
-                function f() {};
-                f.prototype = this;
-                klass = new f();
-            }
+            var klass = Object.create(this);
 
             klass.parent = this;
             klass.prototype = klass.fn = Object.create(this.prototype);
 
+            // 添加实例 属性/方法
             if (include) klass.include(include);
+            // 添加类 属性/方法
             if (extend) klass.extend(extend);
 
             klass.created();
@@ -44,19 +49,13 @@ var exports = this;
             return klass;
         },
 
-        // 生成实例
+        // 生成继承原型的实例
         init: function () {
-            var instance;
-
-            if (Object.create) {
-                instance = Object.create(this.prototype);
-            } else {
-                function f() {};
-                f.prototype = this.prototype;
-                instance = new f();
-            }
+            var instance = Object.create(this.prototype);
 
             instance.parent = this;
+
+            // 初始化新实例
             instance.initializer.apply(instance, arguments);
             instance.init.apply(instance, arguments);
 
@@ -99,6 +98,8 @@ var exports = this;
 
     // Events
     var Events = Xiaoming.Events = {
+        // events 的格式：'click mouseenter mouseleave...'
+        // callback 为函数
         listenTo: function (events, callback) {
             var eventList = events.split(' ');
             var cbs = this._callbacks || (this._callbacks = {});
@@ -109,6 +110,8 @@ var exports = this;
             return this;
         },
 
+        // 可通过额外的参数传递数据
+        // a.trigger('click', record, 100)
         trigger: function () {
             var args = Array.prototype.slice.call(arguments, 0);
             var event = args.shift();
@@ -122,6 +125,8 @@ var exports = this;
             return this;
         },
 
+        // event 参数为 "假值" 时，将注销所有事件
+        // callback 同注册时的全等时，才可以注销（注意函数为引用类型）
         stopListenTo: function (event, callback) {
             if (!event) 
                 this._callbacks = {};
@@ -142,8 +147,9 @@ var exports = this;
 
     Model.extend(Events);
     Model.extend({
+        // 初始化 model 的名字和属性
         setup: function (name, attrs) {
-            var model = Model._create();
+            var model = this._create();
 
             model.name = name || '';
             model.attributes = attrs || '';
@@ -166,6 +172,8 @@ var exports = this;
         },
 
         created: function () {
+            // 初始化 records 和 attributes
+            // 避免多个类共享同一个 records 或 attributes
             this.records = {};
             this.attributes = [];
 
@@ -184,7 +192,6 @@ var exports = this;
 
         find: function (id) {
             var record = this.records[id];
-
             return (record ? record.clone() : null);
         }
     });
@@ -195,19 +202,21 @@ var exports = this;
         init: function (attrs) {
             if (!attrs) return;
 
-            for (var attr in attrs)
+            for (var attr in attrs) {
                 this[attr] = attrs[attr];
+            }
         },
 
         dup: function () {
-            var result = this.parent.init(this.getAttr());
-            result.isNew = this.isNew;
-            return result;
+            var record = this.parent.init(this.getAttr());
+            record.isNew = this.isNew;
+            return record;
         },
 
         load: function (attrs) {
-            for (var name in attrs)
+            for (var name in attrs) {
                 this[name] = attrs[name];
+            }
         },
 
         toJSON: function () {
@@ -227,7 +236,7 @@ var exports = this;
 
         updateAttr: function (name, value) {
             this[name] = value;
-            return this.save();
+            return this.save()
         },
 
         updateAttrs: function (attrs) {
@@ -262,6 +271,12 @@ var exports = this;
 
             this.isNew = false;
             this.trigger('create', records[this.id].clone());
+        },
+
+        update: function () {
+            var records = this.parent.records;
+            records[this.id] = this.load(this.getAttr());
+            this.trigger('update', records[this.id].clone());
         },
 
         destroy: function () {

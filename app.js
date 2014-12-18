@@ -60,10 +60,6 @@ jQuery(function ($) {
             this.$items.append(view.render().el);
         },
 
-        addAll: function () {
-            Url.each(this.addOne);
-        },
-
         events: {
             'form submit': 'create'
         },
