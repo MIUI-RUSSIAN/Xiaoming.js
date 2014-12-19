@@ -104,8 +104,9 @@ var exports = this;
             var eventList = events.split(' ');
             var cbs = this._callbacks || (this._callbacks = {});
 
-            for (var i = 0, len = eventList.length; i < len; i++)
+            for (var i = 0, len = eventList.length; i < len; i++) {
                 (this._callbacks[eventList[i]] || (this._callbacks[eventList[i]] = [])).push(callback);
+            }
 
             return this;
         },
@@ -252,31 +253,27 @@ var exports = this;
         },
 
         clone: function () {
-            var klass = Object.create(this)
-
-            return klass;
+            return Object.create(this);
         },
 
         create: function () {
             if (!this.id) this.id = Xiaoming.guid();
 
+            this.isNew = false;
+
             var records = this.parent.records;
             records[this.id] = this.dup();
-
-            console.log(this)
-
-            this.isNew = false;
             this.trigger('create', records[this.id].clone());
         },
 
         update: function () {
             var records = this.parent.records;
-            records[this.id] = this.load(this.getAttr());
+            records[this.id].load(this.getAttr());
             this.trigger('update', records[this.id].clone());
         },
 
         destroy: function () {
-            this.parent.destroy(this.id);
+            delete this.parent.records[this.id];
             this.trigger('destroy', this);
         },
 
@@ -309,8 +306,8 @@ var exports = this;
             for (var i in events) {
                 if (events.hasOwnProperty(i)) {
                     var item = i.split(' ');
-                    var element = item.shift();
-                    var event = item.pop();
+                    var event = item.shift();
+                    var element = item.pop();
 
                     this.el.on(event, element, this.proxy(this[events[i]]))
                 }
@@ -318,7 +315,7 @@ var exports = this;
         }
     });
 
-    Controller.include(Events);
+    Controller.extend(Events);
 
     exports.Xiaoming = Xiaoming;
 }(jQuery);
