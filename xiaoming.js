@@ -237,7 +237,7 @@ var exports = this;
 
         updateAttr: function (name, value) {
             this[name] = value;
-            return this.save()
+            return this.save();
         },
 
         updateAttrs: function (attrs) {
@@ -315,7 +315,7 @@ var exports = this;
         }
     });
 
-    Controller.extend(Events);
+    Controller.include(Events);
 
     exports.Xiaoming = Xiaoming;
 }(jQuery);
