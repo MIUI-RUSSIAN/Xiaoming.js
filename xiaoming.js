@@ -214,6 +214,10 @@ var exports = this;
             return record;
         },
 
+        equal: function (record) {
+            return (record && record.id === this.id && record.parent === this.parent);
+        },
+
         load: function (attrs) {
             for (var name in attrs) {
                 this[name] = attrs[name];
@@ -237,7 +241,7 @@ var exports = this;
 
         updateAttr: function (name, value) {
             this[name] = value;
-            return this.save();
+            return this.save()
         },
 
         updateAttrs: function (attrs) {
@@ -277,9 +281,11 @@ var exports = this;
             this.trigger('destroy', this);
         },
 
+        // 实例的监听者事件是挂在构造器（parent）上的
+        // 当触发事件时需要用 equal 方法比对参数的 record 和自己的 record 是否一致
         listenTo: function (events, callback) {
             return this.parent.listenTo(events, this.proxy(function (record) {
-                callback.apply(this, arguments);
+                if (record && this.equal(record)) callback.apply(this, arguments);
             }));
         },
 
