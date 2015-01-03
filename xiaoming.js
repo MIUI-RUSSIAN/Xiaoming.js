@@ -111,6 +111,13 @@ var exports = this;
             return this;
         },
 
+        one: function (events, callback) {
+            this.listenTo(events, this.proxy(function () {
+                this.stopListenTo(events, callback);
+                callback.apply(this, arguments);
+            }))
+        },
+
         // 可通过额外的参数传递数据
         // a.trigger('click', record, 100)
         trigger: function () {
