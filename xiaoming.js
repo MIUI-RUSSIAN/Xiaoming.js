@@ -194,6 +194,14 @@ var exports = this;
         find: function (id) {
             var record = this.records[id];
             return (record ? record.clone() : null);
+        },
+
+        sync: function (callback) {
+            this.listenTo('change', callback);
+        },
+
+        fetch: function (callback) {
+            callback ? this.listenTo('fetch', callback) : this.trigger('fetch');
         }
     });
 
