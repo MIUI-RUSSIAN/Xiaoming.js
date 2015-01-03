@@ -198,6 +198,18 @@ var exports = this;
             }));
         },
 
+        refresh: function (values) {
+            this.records = {};
+
+            for (var i = 0, len = values.length; i < len; i++) {
+                var record = values[i];
+                record.isNew = false;
+                this.records[record.id] = record;
+            }
+
+            this.trigger('refresh');
+        },
+
         find: function (id) {
             var record = this.records[id];
             return (record ? record.clone() : null);
