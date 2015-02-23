@@ -3,6 +3,8 @@ var exports = this;
 ~function ($) {
     var Xiaoming = {};
 
+    Xiaoming.noop = function() {};
+
     // Object.create 方法兼容 IE9 以下
     if (!Object.create) {
         Object.create = function (klass) {
