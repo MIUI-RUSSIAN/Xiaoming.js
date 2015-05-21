@@ -1,0 +1,22 @@
+{
+  "name": "Xiaoming.js",
+  "version": "0.0.0",
+  "description": "> Happy new year 2015",
+  "main": "xiaoming.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/XiaomingJS/Xiaoming.js"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/XiaomingJS/Xiaoming.js/issues"
+  },
+  "homepage": "https://github.com/XiaomingJS/Xiaoming.js"
+}
