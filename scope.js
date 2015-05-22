@@ -26,21 +26,30 @@ Scope.prototype.$watch = function(watchFn, listenerFn) {
 };
 
 Scope.prototype.$digest = function() {
+  var TTL = 10;
   var dirty;
+
+  // performance optimization
+  this.$$lastDirtyWatch = null;
+
   do {
     dirty = this.$$digestOnce();
+    if (dirty && !TTL--) {
+      throw '10 digest iteration reached';
+    }
   } while (dirty);
-}
+};
 
 Scope.prototype.$$digestOnce = function() {
   var self = this;
-  var newValue, oldValue, dirty;
+  var newValue, oldValue, dirty, isLast;
 
-  this.$$watchers.forEach(function(watcher) {
+  this.$$watchers.some(function(watcher) {
     newValue = watcher.watchFn(self);
     oldValue = watcher.last;
 
     if (newValue !== oldValue) {
+      self.$$lastDirtyWatch = watcher;
       watcher.last = newValue;
       // 初始化时，newValue 应当也是 oldValue
       watcher.listenerFn(newValue, 
@@ -48,9 +57,16 @@ Scope.prototype.$$digestOnce = function() {
         self);
 
       dirty = true;
+    } else if (watcher === self.$$lastDirtyWatch) {
+      dirty = false;
+      isLast = true;
     }
+
+    // console.log(oldValue, newValue, dirty);
+    return isLast;
   });
 
+  console.log(dirty);
   return dirty;
 };
 

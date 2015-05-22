@@ -104,4 +104,56 @@ describe('digest', function() {
     scope.$digest();
     expect(scope.initial).toBe('G.');
   });
+
+  it('give up watches after 10 iterations', function() {
+    scope.a = 0;
+    scope.b = 0;
+
+    scope.$watch(
+      function(scope) { return scope.a },
+      function(newValue, oldValue, scope) {
+        scope.b++;
+      }
+    );
+
+    scope.$watch(
+      function(scope) { return scope.b },
+      function(newValue, oldValue, scope) {
+        scope.a++;
+      }
+    );
+
+    expect(function() {
+      $scope.$digest()
+    }).toThrow();
+  });
+
+  it('ends digest when last watch is clean', function() {
+    scope.array = [1, 2, 3, 4, 5, 6, 7, 8];
+
+    var watchExecutions = 0;
+
+    scope.array.forEach(function(num, index) {
+      scope.$watch(
+        function(scope) {
+          watchExecutions++;
+          return scope.array[index];
+        },
+        function() {}
+      );
+    });
+
+    scope.$digest();
+    expect(watchExecutions).toBe(16);
+
+    scope.array[0] = 9;
+    scope.$digest();
+    expect(watchExecutions).toBe(25);
+  });
 });
+
+
+
+
+
+
