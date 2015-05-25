@@ -1,19 +1,16 @@
 {
   "name": "Xiaoming.js",
   "version": "0.0.0",
-  "description": "> Happy new year 2015",
+  "description": "Frontend MVW framework",
   "main": "xiaoming.js",
-  "directories": {
-    "test": "test"
-  },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jasmine-node spec/"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/XiaomingJS/Xiaoming.js"
   },
-  "author": "",
+  "author": "klamtine",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/XiaomingJS/Xiaoming.js/issues"

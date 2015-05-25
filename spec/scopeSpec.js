@@ -150,6 +150,84 @@ describe('digest', function() {
     scope.$digest();
     expect(watchExecutions).toBe(25);
   });
+
+  it('does not end digest so that new watches wouldn\'t run', function() {
+    scope.id = 1;
+    scope.counter = 0;
+
+    scope.$watch(
+      function(scope) { return scope.id; },
+      function(newValue, oldValue, scope) {
+        scope.$watch(
+          function(scope) { return scope.id },
+          function(newValue, oldValue, scope) {
+            scope.counter++;
+          }
+        );
+      }
+    );
+
+    scope.$digest();
+    expect(scope.counter).toBe(1);
+  });
+
+  it('compares based on value if enabled', function() {
+    scope.values = [1, 2, 3];
+    scope.counter = 0;
+
+    scope.$watch(
+      function(scope) { return scope.values },
+      function(newValue, oldValue, scope) {
+        scope.counter++;
+      },
+      true
+    );
+
+    scope.$digest();
+    expect(scope.counter).toBe(1);
+
+    scope.values.push(4);
+    scope.$digest();
+    expect(scope.counter).toBe(2);
+  });
+
+  it('handle NAN', function() {
+    scope.number = 0/0;
+    scope.counter = 0;
+
+    scope.$watch(
+      function(scope) { return scope.number; },
+      function(newValue, oldValue, scope) {
+        scope.counter++;
+      }
+    );
+
+    scope.$digest();
+    expect(scope.counter).toBe(1);
+
+    scope.$digest();
+    expect(scope.counter).toBe(1);
+  });
+
+  it('execute $eval function and return value', function() {
+    scope.id = 1;
+
+    var result = scope.$eval(function(scope) {
+      return scope.id;
+    });
+
+    expect(result).toBe(1);
+  });
+
+  it('pass $eval second paramater', function() {
+    scope.id = 1;
+
+    var result = scope.$eval(function(scope, arg) {
+      return scope.id + arg;
+    }, 2);
+
+    expect(result).toBe(3);
+  });
 });
 
 
