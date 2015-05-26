@@ -228,6 +228,106 @@ describe('digest', function() {
 
     expect(result).toBe(3);
   });
+
+  it('execute $apply function', function() {
+    scope.id = 1;
+    scope.counter = 0;
+
+    scope.$watch(
+      function() {
+        return scope.id;
+      },
+      function() {
+        scope.counter++;
+      }
+    );
+
+    scope.$digest();
+    expect(scope.counter).toBe(1);
+
+    scope.$apply(function() {
+      scope.id = 2;
+    });
+    expect(scope.counter).toBe(2);
+  });
+
+  it('evalAsync function', function() {
+    scope.id = 1;
+    scope.async = false;
+    scope.immediate = false;
+
+    scope.$watch(
+      function(scope) { return scope.id; },
+      function() {
+        scope.$evalAsync(function() {
+          scope.async = true;
+        });
+        scope.immediate = scope.async;
+      }
+    );
+
+    scope.$digest();
+    expect(scope.immediate).toBe(false);
+    expect(scope.async).toBe(true);
+  });
+
+  it('execute evalAsync function in watch', function() {
+    scope.isAsync = false;
+    scope.id = 1;
+
+    scope.$watch(
+      function() {
+        if (!scope.isAsync) {
+          scope.$evalAsync(function(scope) {
+            scope.isAsync = true;
+          });
+        }
+
+        return scope.id;
+      },
+      function() {}
+    );
+
+    scope.$digest();
+
+    expect(scope.isAsync).toBe(true);
+  });
+
+  it('execute evalAsync event not dirty', function() {
+    scope.id = 1;
+    scope.counter = 0;
+
+    scope.$watch(
+      function() {
+        if (scope.counter < 2) {
+          scope.$evalAsync(function() {
+            scope.counter++;
+          });
+        }
+
+        return scope.id;
+      },
+      function() {}
+    );
+
+    scope.$digest();
+
+    expect(scope.counter).toBe(2);
+  });
+
+  it('prevent infinite evalAsync', function() {
+    scope.id = 1;
+
+    scope.$watch(
+      function(scope) {
+        scope.$evalAsync(function(scope) {});
+        return scope.id;
+      },
+      function() {}
+    );
+
+    expect(function() { scope.$digest() }).toThrow();
+  });
 });
 
 

@@ -31,6 +31,7 @@ function deepCopy(target, child) {
 
 function Scope() {
   this.$$watchers = [];
+  this.$$asnycQueen = [];
 }
 
 // 处理 watchFn 返回 undefined 的情况
@@ -59,11 +60,17 @@ Scope.prototype.$digest = function() {
   this.$$lastDirtyWatch = null;
 
   do {
+    if (this.$$asnycQueen.length) {
+      var task = this.$$asnycQueen.shift();
+      task.scope.$eval(task.expression);
+    }
+
     dirty = this.$$digestOnce();
-    if (dirty && !TTL--) {
+
+    if ((dirty || this.$$asnycQueen.length) && !TTL--) {
       throw '10 digest iteration reached';
     }
-  } while (dirty);
+  } while (dirty || this.$$asnycQueen.length);
 };
 
 Scope.prototype.$$digestOnce = function() {
@@ -97,6 +104,18 @@ Scope.prototype.$$digestOnce = function() {
 
 Scope.prototype.$eval = function(func, param) {
   return func(this, param);
+};
+
+Scope.prototype.$evalAsync = function(func) {
+  this.$$asnycQueen.push({scope: this, expression: func});
+};
+
+Scope.prototype.$apply = function(func) {
+  try {
+    this.$eval(func)
+  } finally {
+    this.$digest();
+  }
 };
 
 Scope.prototype.$$areEqual = function(newValue, oldValue, isDeep) {
