@@ -32,6 +32,7 @@ function deepCopy(target, child) {
 function Scope() {
   this.$$watchers = [];
   this.$$asnycQueen = [];
+  this.$$phase = null;
 }
 
 // 处理 watchFn 返回 undefined 的情况
@@ -59,6 +60,8 @@ Scope.prototype.$digest = function() {
   // performance optimization
   this.$$lastDirtyWatch = null;
 
+  this.$$beginPhase('$digest');
+
   do {
     if (this.$$asnycQueen.length) {
       var task = this.$$asnycQueen.shift();
@@ -68,9 +71,12 @@ Scope.prototype.$digest = function() {
     dirty = this.$$digestOnce();
 
     if ((dirty || this.$$asnycQueen.length) && !TTL--) {
+      this.$$clearPhase();
       throw '10 digest iteration reached';
     }
   } while (dirty || this.$$asnycQueen.length);
+
+  this.$$clearPhase();
 };
 
 Scope.prototype.$$digestOnce = function() {
@@ -107,13 +113,25 @@ Scope.prototype.$eval = function(func, param) {
 };
 
 Scope.prototype.$evalAsync = function(func) {
+  var self = this;
+
+  if (!self.$$phase && !self.$$asnycQueen.length) {
+    setTimeout(function() {
+      if (self.$$asnycQueen.length) {
+        self.$digest();
+      }
+    }, 0);
+  }
+
   this.$$asnycQueen.push({scope: this, expression: func});
 };
 
 Scope.prototype.$apply = function(func) {
   try {
-    this.$eval(func)
+    this.$$beginPhase('$apply');
+    return this.$eval(func)
   } finally {
+    this.$$clearPhase();
     this.$digest();
   }
 };
@@ -141,6 +159,18 @@ Scope.prototype.$$areEqual = function(newValue, oldValue, isDeep) {
   }
 
   return result;
+};
+
+Scope.prototype.$$beginPhase = function(phase) {
+  if (this.$$phase) {
+    throw this.$$phase + ' already in progress';
+  }
+
+  this.$$phase = phase;
+};
+
+Scope.prototype.$$clearPhase = function() {
+  this.$$phase = null;
 };
 
 module.exports = Scope;

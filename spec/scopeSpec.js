@@ -328,6 +328,48 @@ describe('digest', function() {
 
     expect(function() { scope.$digest() }).toThrow();
   });
+
+  it('set $$phase to $digest while digest', function() {
+    scope.id = 1;
+
+    scope.$watch(
+      function(scope) {
+        scope.phaseInWatch = scope.$$phase;
+        return scope.id;
+      },
+      function() {
+        scope.phaseInListener = scope.$$phase;
+      }
+    );
+
+    scope.$apply(function() {
+      scope.phaseInApply = scope.$$phase;
+    });
+
+    expect(scope.phaseInWatch).toBe('$digest');
+    expect(scope.phaseInListener).toBe('$digest');
+    expect(scope.phaseInApply).toBe('$apply');
+  });
+
+  it('schedules a digest in $evalAsync', function(done) {
+    scope.id = 1;
+    scope.counter = 0;
+
+    scope.$watch(
+      function(scope) { return scope.id; },
+      function() {
+        scope.counter++;
+      }
+    );
+
+    scope.$evalAsync(function(scope) {});
+
+    expect(scope.counter).toBe(0);
+    setTimeout(function() {
+      expect(scope.counter).toBe(1);
+      done();
+    }, 50);
+  });
 });
 
 
