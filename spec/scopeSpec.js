@@ -469,6 +469,43 @@ describe('digest', function() {
       done();
     }, 50);
   });
+
+  it('run $$postDigest after $digest', function() {
+    scope.counter = 0;
+
+    scope.$$postDigest(function() {
+      scope.counter++;
+    });
+
+    scope.$digest();
+    expect(scope.counter).toBe(1);
+
+    scope.$digest();
+    expect(scope.counter).toBe(1);
+  });
+
+  it('will not run $$postDigest during current $digest', function() {
+    scope.id = 1;
+
+    scope.$$postDigest(function() {
+      scope.id = 2;
+    });
+
+    scope.$watch(
+      function(scope) {
+        return scope.id;
+      },
+      function(newValue) {
+        scope.variable = newValue;
+      }
+    );
+
+    scope.$digest();
+    expect(scope.variable).toBe(1);
+
+    scope.$digest();
+    expect(scope.variable).toBe(2);
+  });
 });
 
 
