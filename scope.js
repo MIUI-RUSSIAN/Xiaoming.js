@@ -32,6 +32,8 @@ function deepCopy(target, child) {
 function Scope() {
   this.$$watchers = [];
   this.$$asnycQueen = [];
+  this.$$applyAsyncQueen = [];
+  this.$$applyAsyncId = null;
   this.$$phase = null;
 }
 
@@ -61,6 +63,11 @@ Scope.prototype.$digest = function() {
   this.$$lastDirtyWatch = null;
 
   this.$$beginPhase('$digest');
+
+  if (this.$$applyAsyncId) {
+    clearTimeout(this.$$applyAsyncId);
+    this.$$flushApplyAsync();
+  }
 
   do {
     if (this.$$asnycQueen.length) {
@@ -134,6 +141,29 @@ Scope.prototype.$apply = function(func) {
     this.$$clearPhase();
     this.$digest();
   }
+};
+
+Scope.prototype.$applyAsync = function(func) {
+  var self = this;
+  self.$$applyAsyncQueen.push(function() {
+    self.$eval(func);
+  });
+
+  if (self.$$applyAsyncId === null) {
+    self.$$applyAsyncId = setTimeout(function() {
+      self.$apply(function() {
+        self.$$flushApplyAsync();
+      });
+    }, 0);
+  }
+};
+
+Scope.prototype.$$flushApplyAsync = function() {
+  while (this.$$applyAsyncQueen.length) {
+    this.$$applyAsyncQueen.shift()();
+  }
+
+  this.$$applyAsyncId = null;
 };
 
 Scope.prototype.$$areEqual = function(newValue, oldValue, isDeep) {

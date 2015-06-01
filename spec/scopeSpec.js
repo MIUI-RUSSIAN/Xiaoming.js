@@ -370,6 +370,105 @@ describe('digest', function() {
       done();
     }, 50);
   });
+
+  it('$applyAsync runs async', function(done) {
+    scope.counter = 0;
+
+    scope.$watch(
+      function(scope) { return scope.id; },
+      function() { scope.counter++; }
+    );
+
+    scope.$digest();
+
+    expect(scope.counter).toBe(1);
+
+    scope.$applyAsync(function() {
+      scope.id = 1;
+    });
+
+    expect(scope.counter).toBe(1);
+
+    setTimeout(function() {
+      expect(scope.counter).toBe(2);
+      done();
+    }, 50);
+  });
+
+  it('never run $applyAsync function in same cycle', function(done) {
+    scope.id = 1;
+    scope.asyncApplied = false;
+
+    scope.$watch(
+      function(scope) { return scope.id; },
+      function() {
+        scope.$applyAsync(function(scope) {
+          scope.asyncApplied = true;
+        });
+      }
+    );
+
+    scope.$digest();
+    expect(scope.asyncApplied).toBe(false);
+    setTimeout(function() {
+      expect(scope.asyncApplied).toBe(true);
+      done();
+    }, 0);
+  });
+
+  it('batch calls to $applyAsync', function(done) {
+    scope.counter = 0;
+
+    scope.$watch(
+      function() {
+        scope.counter++;
+        return scope.id;
+      },
+      function() {}
+    );
+
+    scope.$applyAsync(function(scope) {
+      scope.id = 1;
+    });
+    scope.$applyAsync(function(scope) {
+      scope.id = 2;
+    });
+
+    setTimeout(function() {
+      expect(scope.counter).toBe(2);
+      done();
+    }, 50);
+  });
+
+  it('cancel and flush $applyAsync if digest', function(done) {
+    scope.counter = 0;
+
+    scope.$watch(
+      function(scope) {
+        scope.counter++;
+        return scope.id;
+      },
+      function() {}
+    );
+
+    scope.$applyAsync(function(scope) {
+      scope.id = 1;
+    });
+
+    scope.$applyAsync(function(scope) {
+      scope.id = 2;
+    });
+
+    scope.$digest();
+
+    expect(scope.counter).toBe(2);
+    expect(scope.id).toBe(2);
+
+    setTimeout(function() {
+      expect(scope.counter).toBe(2);
+      done();
+    }, 50);
+  });
 });
 
 
