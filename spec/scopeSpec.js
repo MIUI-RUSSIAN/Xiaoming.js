@@ -506,6 +506,132 @@ describe('digest', function() {
     scope.$digest();
     expect(scope.variable).toBe(2);
   });
+
+  it('catch exception in watch function', function() {
+    scope.id = 1;
+    scope.counter = 0;
+
+    scope.$watch(
+      function(scope) { throw 'error'; },
+      function() {
+        scope.counter++;
+      }
+    );
+
+    scope.$watch(
+      function(scope) { return scope.id; },
+      function() {
+        scope.counter++;
+      }
+    );
+
+    scope.$digest();
+    expect(scope.counter).toBe(1);
+  });
+
+  it('catch exception in listener function', function() {
+    scope.id = 1;
+    scope.counter = 0;
+
+    scope.$watch(
+      function(scope) { return scope.id; },
+      function() {
+        throw 'error';
+      }
+    );
+
+    scope.$watch(
+      function(scope) { return scope.id },
+      function() {
+        scope.counter++;
+      }
+    );
+
+    scope.$digest();
+    expect(scope.counter).toBe(1);
+  });
+
+  it('catch exception in $evalAsync', function(done) {
+    scope.id = 1;
+    scope.counter = 0;
+
+    scope.$watch(
+      function(scope) { return scope.id; },
+      function() {
+        scope.counter++;
+      }
+    );
+
+    scope.$evalAsync(function(scope) {
+      throw 'error';
+    });
+
+    setTimeout(function() {
+      expect(scope.counter).toBe(1);
+      done();
+    }, 0); 
+  });
+
+  it('catch exception in $applyAsync', function(done) {
+    scope.counter = 0;
+
+    scope.$applyAsync(function() {
+      throw 'error';
+    });
+
+    scope.$applyAsync(function() {
+      throw 'error';
+    });
+
+    scope.$applyAsync(function() {
+      scope.counter++;
+    });
+
+    setTimeout(function() {
+      expect(scope.counter).toBe(1);
+      done();
+    }, 0);
+  });
+
+  it('catch exception in $$postDigest', function() {
+    scope.counter = 0;
+
+    scope.$$postDigest(function() {
+      throw 'error';
+    });
+
+    scope.$$postDigest(function() {
+      scope.counter++;
+    });
+
+    scope.$digest();
+
+    expect(scope.counter).toBe(1);
+  });
+
+  it('destroy a watch with', function() {
+    scope.id = 1;
+    scope.counter = 0;
+
+    var watcher = scope.$watch(
+      function (scope) { return scope.id; },
+      function() {
+        scope.counter++;
+      }
+    );
+
+    scope.$digest();
+    expect(scope.counter).toBe(1);
+
+    scope.id = 2;
+    scope.$digest();
+    expect(scope.counter).toBe(2);
+
+    scope.id = 3;
+    watcher();
+    scope.$digest();
+    expect(scope.counter).toBe(2);
+  });
 });
 
 
