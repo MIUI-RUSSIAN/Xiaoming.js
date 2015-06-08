@@ -609,7 +609,7 @@ describe('digest', function() {
     expect(scope.counter).toBe(1);
   });
 
-  it('destroy a watch with', function() {
+  it('destroy a watch', function() {
     scope.id = 1;
     scope.counter = 0;
 
@@ -631,6 +631,36 @@ describe('digest', function() {
     watcher();
     scope.$digest();
     expect(scope.counter).toBe(2);
+  });
+
+  it('destroy a watch during $digest', function() {
+    scope.id = 1;
+
+    var watchCalls = [];
+
+    scope.$watch(
+      function(scope) {
+        watchCalls.push(1);
+        return scope.id;
+      }
+    );
+
+    var watcher = scope.$watch(
+      function(scope) {
+        watchCalls.push(2);
+        watcher();
+      }
+    );
+
+    scope.$watch(
+      function(scope) {
+        watchCalls.push(3);
+        return scope.id;
+      }
+    );
+
+    scope.$digest();
+    expect(watchCalls).toEqual([1, 2, 3, 1, 3]);
   });
 });
 

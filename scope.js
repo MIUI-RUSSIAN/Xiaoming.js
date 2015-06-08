@@ -29,6 +29,12 @@ function deepCopy(target, child) {
   return child;
 }
 
+Array.prototype.someRight = function(func) {
+  for (var i = this.length - 1; i >= 0; i--) {
+    if (func(this[i], i)) break;
+  }
+};
+
 function Scope() {
   this.$$watchers = [];
   this.$$asyncQueue = [];
@@ -54,12 +60,11 @@ Scope.prototype.$watch = function(watchFn, listenerFn, isDeep) {
   };
 
   this.$$lastDirtyWatch = null;
-  this.$$watchers.push(watcher);
+  this.$$watchers.unshift(watcher);
 
   return function() {
     var index = self.$$watchers.indexOf(watcher);
 
-    console.log(index)
     if (index >= 0) {
       self.$$watchers.splice(index, 1);
     }
@@ -114,7 +119,7 @@ Scope.prototype.$$digestOnce = function() {
   var self = this;
   var newValue, oldValue, dirty, isLast, isDeep;
 
-  this.$$watchers.some(function(watcher) {
+  this.$$watchers.someRight(function(watcher) {
     try {
       newValue = watcher.watchFn(self);
       oldValue = watcher.last;
