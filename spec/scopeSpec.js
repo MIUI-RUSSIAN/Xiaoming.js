@@ -662,6 +662,39 @@ describe('digest', function() {
     scope.$digest();
     expect(watchCalls).toEqual([1, 2, 3, 1, 3]);
   });
+
+  it('allows a $watch destroy another watch during $digest', function() {
+    scope.id = 1;
+    scope.counter = 0;
+
+    scope.$watch(
+      function(scope) {
+        return scope.id; 
+      },
+      function() {
+        watcher(); 
+      }   
+    ) 
+
+    var watcher = scope.$watch(
+      function(scope) {},
+      function() {}  
+    );
+
+    scope.$watch(
+      function() {
+        return scope.id; 
+      },   
+      function() {
+        scope.counter++; 
+      }
+    );
+
+    scope.$digest();
+    expect(scope.counter).toBe(1);
+  });
+
+
 });
 
 
