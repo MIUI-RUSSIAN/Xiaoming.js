@@ -1,0 +1,19 @@
+{
+  "name": "Xiaoming.js",
+  "version": "0.0.0",
+  "description": "Frontend MVW framework",
+  "main": "xiaoming.js",
+  "scripts": {
+    "test": "jasmine-node spec/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/XiaomingJS/Xiaoming.js"
+  },
+  "author": "klamtine",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/XiaomingJS/Xiaoming.js/issues"
+  },
+  "homepage": "https://github.com/XiaomingJS/Xiaoming.js"
+}
