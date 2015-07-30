@@ -3,6 +3,7 @@
   "main": "Xiaoming.js",
   "version": "0.0.0",
   "homepage": "https://github.com/klamtlne/Xiaoming.js",
+  "registry": "https://github.com",
   "authors": [
     "klamtlne <klamtine@gmail.com>"
   ],

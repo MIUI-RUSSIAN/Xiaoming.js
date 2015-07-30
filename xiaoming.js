@@ -3,6 +3,7 @@ var exports = this;
 void function () {
   var Xiaoming = {};
 
+  Xiaoming.version = "0.0.1";
   Xiaoming.noop = function() {};
 
   // Object.create 方法兼容 IE9 以下
@@ -353,6 +354,12 @@ void function () {
   });
 
   Controller.include(Events);
+
+  Xiaoming.Http = Class.create({
+    initializer: function(options) {
+      this.xhr = new XMLHttpRequest();
+    }
+  });
 
   exports.Xiaoming = Xiaoming;
 }();
