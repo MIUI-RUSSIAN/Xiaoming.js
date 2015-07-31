@@ -356,10 +356,53 @@ void function () {
   Controller.include(Events);
 
   Xiaoming.Http = Class.create({
-    initializer: function(options) {
+    initializer: function() {
       this.xhr = new XMLHttpRequest();
+    },
+
+    create: function(options) {
+      this.xhr.open(options.method, options.url);
+
+      this.xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+      this.xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+      this.xhr.send(JSON.stringify(options.data));
+      this.xhr.onreadystatechange = function() {
+        if (+this.xhr.readyState === 4) {
+          void (/^[1-3]/.test(+this.xhr.status) ?
+                options.success() :
+                options.fail());
+        }
+      }
+    },
+
+    get: function(options) {
+      options.method = 'get';
+      return this.create(options);
+    },
+
+    post: function(options) {
+      options.method = 'post';
+      return this.create(options);
+    },
+
+    update: function(options) {
+      options.method = 'update';
+      return this.create(options)
+    },
+
+    patch: function(options) {
+      options.method = 'patch';
+      return this.create(options)
+    },
+
+    delete: function(options) {
+      options.method = 'delete';
+      return this.create(options);
     }
   });
+
+  Xiaoming.Http = Xiaoming.Http.init();
 
   exports.Xiaoming = Xiaoming;
 }();
