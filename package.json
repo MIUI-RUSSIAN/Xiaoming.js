@@ -15,5 +15,8 @@
   "bugs": {
     "url": "https://github.com/XiaomingJS/Xiaoming.js/issues"
   },
-  "homepage": "https://github.com/XiaomingJS/Xiaoming.js"
+  "homepage": "https://github.com/XiaomingJS/Xiaoming.js",
+  "devDependencies": {
+    "gulp-uglify": "^1.2.0"
+  }
 }
