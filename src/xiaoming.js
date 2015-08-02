@@ -14,20 +14,24 @@ void function () {
   }
 
   Xiaoming.copy = function(source) {
-    if (typeof traget !== 'object' && Object.prototype.toString.call(obj) !== '[object Array]') return target;
+    if (typeof source !== 'object' && Object.prototype.toString.call(source) !== '[object Array]') return source;
 
     var result = {};
 
     for (var key in source) {
-      if (typeof source[key] === 'object') {
-        result.key = Xiaoming.copy(source[key]);
-      } else if (Object.prototype.toString.call(source[key]) === '[object Array]') {
+      if (Object.prototype.toString.call(source[key]) === '[object Array]' && source[key].length) {
         result[key] = [];
         source[key].forEach(function(value) {
           result[key].push(value);
         });
+      } else if (typeof source[key] === 'object') {
+        result[key] = Xiaoming.copy(source[key]);
+      } else {
+        result[key] = source[key];
       }
     }
+
+    return result;
   };
 
   // 生成随机的guid
@@ -103,7 +107,6 @@ void function () {
 
       if (obj.extended) obj.extended.apply(this);
 
-      console.log(this);
       return this;
     },
 
@@ -396,7 +399,7 @@ void function () {
           raw = JSON.parse(this.xhr.responseText);
         } catch(e) {
           console.error('Response type is not valid JSON');
-          raw = this.xhr.responseText;
+          raw = this.xhr.responseText.body;
         }
 
         if (+this.xhr.readyState === 4) {
