@@ -1,11 +1,16 @@
-# Xiaoming
+## Xiaoming
 
-## Introduction
+### Xiaoming.Class
 
-Xiaoming is a frontend MVC framework
-For What is Front-end MVC, I strongly recommend reading [this post](!http://addyosmani.github.io/backbone-fundamentals/)
+`create(include, extend)`
 
-Xiaoming is made up with these parts:
+| 参数名 | 类型 | 描述 |
+| include | Object | 实例方法 | 
+| extend | Object | 构造函数方法 | 
+
+返回一个 Class 的新实例
+
+``
 
 ### Xiaoming.Events
 

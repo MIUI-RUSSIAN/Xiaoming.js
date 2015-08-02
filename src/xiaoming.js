@@ -1,5 +1,3 @@
-var exports = this;
-
 void function () {
   var Xiaoming = {};
 
@@ -15,8 +13,25 @@ void function () {
     };
   }
 
+  Xiaoming.copy = function(source) {
+    if (typeof traget !== 'object' && Object.prototype.toString.call(obj) !== '[object Array]') return target;
+
+    var result = {};
+
+    for (var key in source) {
+      if (typeof source[key] === 'object') {
+        result.key = Xiaoming.copy(source[key]);
+      } else if (Object.prototype.toString.call(source[key]) === '[object Array]') {
+        result[key] = [];
+        source[key].forEach(function(value) {
+          result[key].push(value);
+        });
+      }
+    }
+  };
+
   // 生成随机的guid
-  Xiaoming.guid = function () {
+  Xiaoming.guid = function() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
       var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
       return v.toString(16);
@@ -24,13 +39,14 @@ void function () {
   };
 
   var Class = Xiaoming.Class = {
-    // 通过 create 创建新的类后，触发 inherited 方法，参数为新的类
+    // 通过 create 创建实例后，在 Class 实例上触发 inherited 方法
     inherited: function () {},
 
-    // 通过 create 创建新的类后，触发 created 方法
+    // 通过 create 创建实例后，在新的实例上触发 created 方法
     created: function () {},
 
     prototype: {
+      constructor: Xiaoming.Class,
       initializer: function () {},
       init: function () {}
     },
@@ -67,8 +83,10 @@ void function () {
 
     // 为实例添加方法
     include: function (obj) {
+      if (typeof obj !== 'object' && Object.prototype.toString.call(obj) !== '[object Array]') return new Error('Include paramater');
+
       for (var key in obj) {
-        if (obj.hasOwnProperty(key)) this.fn[key] = obj[key];
+        if (obj.hasOwnProperty(key) && key !== 'included') this.fn[key] = obj[key];
       }
 
       if (obj.included) obj.included.apply(this);
@@ -78,18 +96,21 @@ void function () {
 
     // 为构造函数添加方法
     extend: function (obj) {
-      for (var key in obj)
-        if (obj.hasOwnProperty(key)) this[key] = obj[key];
+      // TODO: 检查循环引用
+      for (var key in obj) {
+        if (obj.hasOwnProperty(key) && key !== 'extended') this[key] = obj[key];
+      }
 
       if (obj.extended) obj.extended.apply(this);
 
+      console.log(this);
       return this;
     },
 
-    proxy: function (func) {
+    proxy: function(func) {
       var self = this;
 
-      return (function () {
+      return (function() {
         return func.apply(self, arguments);
       });
     }
@@ -364,10 +385,11 @@ void function () {
       this.xhr.open(options.method, options.url);
 
       this.xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+      this.xhr.setRequestHeader('Accept', 'application/json');
       this.xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
       this.xhr.send(JSON.stringify(options.data));
-      this.xhr.onreadystatechange = () => {
+      this.xhr.onreadystatechange = function() {
         var raw;
 
         try {
@@ -382,7 +404,7 @@ void function () {
                 options.success(raw) :
                 options.fail(raw));
         }
-      }
+      };
     },
 
     get: function(options) {
@@ -397,12 +419,12 @@ void function () {
 
     update: function(options) {
       options.method = 'update';
-      return this.create(options)
+      return this.create(options);
     },
 
     patch: function(options) {
       options.method = 'patch';
-      return this.create(options)
+      return this.create(options);
     },
 
     delete: function(options) {
@@ -413,6 +435,6 @@ void function () {
 
   Xiaoming.Http = Xiaoming.Http.init();
 
-  exports.Xiaoming = Xiaoming;
+  window.Xiaoming = Xiaoming;
 }();
 
