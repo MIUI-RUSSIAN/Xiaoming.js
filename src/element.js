@@ -8,7 +8,7 @@ Xiaoming.query = function(selector) {
   if (/^#/.test(selector)) {
     dom = document.getElementById(selector);
   } else if (/^\./.test(selector)) {
-    dom = document.getElementsByClass(selector);
+    dom = document.getElementsByClassName(selector);
   } else {
     dom = document.getElementsByTagName(selector);
   }
