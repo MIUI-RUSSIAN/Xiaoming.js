@@ -1,10 +1,13 @@
 ## Xiaoming
 
+> out-of-style mvc(seriously it's M & C) framework
+
 ### Xiaoming.Class
 
 `create(include, extend)`
 
 | 参数名 | 类型 | 描述 |
+| ------ | ---- | ---- |
 | include | Object | 实例方法 |
 | extend | Object | 构造函数方法 |
 
@@ -15,6 +18,7 @@
 `extend(options)`
 
 | 参数名 | 类型 | 描述 |
+| ------ | ---- | ---- |
 | options | Object | 实例方法 |
 
 可以传入键为 extended 的函数, 将在 extend 完成后调用
@@ -22,6 +26,7 @@
 `include(options)`
 
 | 参数名 | 类型 | 描述 |
+| ------ | ---- | ---- |
 | options | Object | 实例方法 |
 
 可以传入键为 included 的函数, 将在 extend 完成后调用
@@ -29,6 +34,7 @@
 `proxy(func)`
 
 | 参数名 | 类型 | 描述 |
+| ------ | ---- | ---- |
 | func | function | 需要显式设置作用域的函数 |
 
 `func` 的作用域将被设置到当前的 this
