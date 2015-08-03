@@ -1,5 +1,7 @@
 ## Xiaoming
 
+out-of-style mvc(seriously it's M & C) framework
+
 ### Xiaoming.Class
 
 `create(include, extend)`
