@@ -360,7 +360,6 @@ void function () {
       }
 
       this.el = this.el || document.createElement('div');
-      this.el = document.querySelector(this.el);
 
       var events = this.events;
 
