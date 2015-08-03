@@ -1,6 +1,6 @@
 ## Xiaoming
 
-out-of-style mvc(seriously it's M & C) framework
+> out-of-style mvc(seriously it's M & C) framework
 
 ### Xiaoming.Class
 
