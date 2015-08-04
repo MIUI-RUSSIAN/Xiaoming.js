@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans">
+  <head>
+    <meta charset="UTF-8">
+    <title>Todo</title>
+
+    <link rel="stylesheet" href="http://cdn.staticfile.org/twitter-bootstrap/3.3.0/css/bootstrap.min.css">
+  </head>
+  <body id="view" class="container">
+    <script id="todo-tmpl" type="text/template">
+      {@if done}
+      <p><input type="checkbox" checked>${content}<i class="glyphicon glyphicon-remove remove"></i></p>
+      {@else}
+      <p><input type="checkbox">${content}<i class="glyphicon glyphicon-remove remove"></i></p>
+      {@/if}
+    </script>
+
+    <h1>Todo</h1>
+
+    <form>
+      <div class="row">
+        <div class="col-sm-3">
+          <input type="text" class="form-control input" placeholder="what's need to be done?">
+        </div>
+        <button class="btn btn-primary">Create</button>
+      </div>
+    </form>
+
+    <div class="items"></div>
+
+    <script src="../bower_components/xiaoming.js/src/juicer.js"></script>
+    <script src="../bower_components/xiaoming.js/src/xiaoming.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
