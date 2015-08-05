@@ -403,12 +403,12 @@ void function () {
             raw = JSON.parse(this.xhr.responseText);
           } catch(e) {
             console.error('Response type is not valid JSON');
-            raw = this.xhr.responseText.body;
+            raw = this.xhr.responseText;
           }
 
           void (/^[1-3]/.test(+this.xhr.status) ?
-                options.success(raw) :
-                options.fail(raw));
+                options.success(raw.body) :
+                options.fail(raw.body));
         }
       };
     },
