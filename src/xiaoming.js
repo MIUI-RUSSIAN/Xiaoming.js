@@ -395,17 +395,17 @@ void function () {
       this.xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
       this.xhr.send(JSON.stringify(options.data));
-      this.xhr.onreadystatechange = function() {
-        var raw;
-
-        try {
-          raw = JSON.parse(this.xhr.responseText);
-        } catch(e) {
-          console.error('Response type is not valid JSON');
-          raw = this.xhr.responseText.body;
-        }
-
+      this.xhr.onreadystatechange = () => {
         if (+this.xhr.readyState === 4) {
+          var raw;
+
+          try {
+            raw = JSON.parse(this.xhr.responseText);
+          } catch(e) {
+            console.error('Response type is not valid JSON');
+            raw = this.xhr.responseText.body;
+          }
+
           void (/^[1-3]/.test(+this.xhr.status) ?
                 options.success(raw) :
                 options.fail(raw));

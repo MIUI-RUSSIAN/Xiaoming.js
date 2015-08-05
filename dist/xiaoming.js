@@ -391,6 +391,8 @@ void (function () {
     },
 
     create: function create(options) {
+      var _this = this;
+
       this.xhr.open(options.method, options.url);
 
       this.xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
@@ -399,17 +401,17 @@ void (function () {
 
       this.xhr.send(JSON.stringify(options.data));
       this.xhr.onreadystatechange = function () {
-        var raw;
+        if (+_this.xhr.readyState === 4) {
+          var raw;
 
-        try {
-          raw = JSON.parse(this.xhr.responseText);
-        } catch (e) {
-          console.error('Response type is not valid JSON');
-          raw = this.xhr.responseText.body;
-        }
+          try {
+            raw = JSON.parse(_this.xhr.responseText);
+          } catch (e) {
+            console.error('Response type is not valid JSON');
+            raw = _this.xhr.responseText.body;
+          }
 
-        if (+this.xhr.readyState === 4) {
-          void (/^[1-3]/.test(+this.xhr.status) ? options.success(raw) : options.fail(raw));
+          void (/^[1-3]/.test(+_this.xhr.status) ? options.success(raw) : options.fail(raw));
         }
       };
     },
