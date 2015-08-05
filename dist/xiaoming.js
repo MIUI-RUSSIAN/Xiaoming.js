@@ -1,8 +1,10 @@
-void function () {
+'use strict';
+
+void (function () {
   var Xiaoming = {};
 
   Xiaoming.version = "0.0.1";
-  Xiaoming.noop = function() {};
+  Xiaoming.noop = function () {};
 
   // Object.create 方法兼容 IE9 以下
   if (!Object.create) {
@@ -13,7 +15,7 @@ void function () {
     };
   }
 
-  Xiaoming.copy = function(source) {
+  Xiaoming.copy = function (source) {
     if (typeof source !== 'object' && Object.prototype.toString.call(source) !== '[object Array]') return source;
 
     var result = {};
@@ -21,7 +23,7 @@ void function () {
     for (var key in source) {
       if (Object.prototype.toString.call(source[key]) === '[object Array]' && source[key].length) {
         result[key] = [];
-        source[key].forEach(function(value) {
+        source[key].forEach(function (value) {
           result[key].push(value);
         });
       } else if (typeof source[key] === 'object') {
@@ -34,32 +36,33 @@ void function () {
     return result;
   };
 
-  Xiaoming.isElement = function(element) {
+  Xiaoming.isElement = function (element) {
     return element.tagName && ~element.nodeType;
   };
 
   // 生成随机的guid
-  Xiaoming.guid = function() {
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-      var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+  Xiaoming.guid = function () {
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+      var r = Math.random() * 16 | 0,
+          v = c == 'x' ? r : r & 0x3 | 0x8;
       return v.toString(16);
     }).toUpperCase();
   };
 
   var Class = Xiaoming.Class = {
     // 通过 create 创建实例后，在 Class 实例上触发 inherited 方法
-    inherited: function () {},
+    inherited: function inherited() {},
 
     // 通过 create 创建实例后，在新的实例上触发 created 方法
-    created: function () {},
+    created: function created() {},
 
     prototype: {
       constructor: Xiaoming.Class,
-      initializer: function () {},
-      init: function () {}
+      initializer: function initializer() {},
+      init: function init() {}
     },
 
-    create: function (include, extend) {
+    create: function create(include, extend) {
       var klass = Object.create(this);
 
       klass.parent = this;
@@ -77,7 +80,7 @@ void function () {
     },
 
     // 生成继承原型的实例
-    init: function () {
+    init: function init() {
       var instance = Object.create(this.prototype);
 
       instance.parent = this;
@@ -90,7 +93,7 @@ void function () {
     },
 
     // 为实例添加方法
-    include: function (obj) {
+    include: function include(obj) {
       if (typeof obj !== 'object' && Object.prototype.toString.call(obj) !== '[object Array]') return new Error('Include paramater');
 
       for (var key in obj) {
@@ -103,7 +106,7 @@ void function () {
     },
 
     // 为构造函数添加方法
-    extend: function (obj) {
+    extend: function extend(obj) {
       // TODO: 检查循环引用
       for (var key in obj) {
         if (obj.hasOwnProperty(key) && key !== 'extended') this[key] = obj[key];
@@ -114,12 +117,12 @@ void function () {
       return this;
     },
 
-    proxy: function(func) {
+    proxy: function proxy(func) {
       var self = this;
 
-      return (function() {
+      return function () {
         return func.apply(self, arguments);
-      });
+      };
     }
   };
 
@@ -131,7 +134,7 @@ void function () {
   var Events = Xiaoming.Events = {
     // events 的格式：'click mouseenter mouseleave...'
     // callback 为函数
-    listenTo: function (events, callback) {
+    listenTo: function listenTo(events, callback) {
       var eventList = events.split(' ');
       var cbs = this._callbacks || (this._callbacks = {});
 
@@ -142,7 +145,7 @@ void function () {
       return this;
     },
 
-    one: function (events, callback) {
+    one: function one(events, callback) {
       this.listenTo(events, this.proxy(function () {
         this.stopListenTo(events, callback);
         callback.apply(this, arguments);
@@ -151,7 +154,7 @@ void function () {
 
     // 可通过额外的参数传递数据
     // a.trigger('click', record, 100)
-    trigger: function () {
+    trigger: function trigger() {
       var args = Array.prototype.slice.call(arguments, 0);
       var event = args.shift();
 
@@ -166,7 +169,7 @@ void function () {
 
     // event 参数为 "假值" 时，将注销所有事件
     // callback 同注册时的全等时，才可以注销（注意函数为引用类型）
-    stopListenTo: function (event, callback) {
+    stopListenTo: function stopListenTo(event, callback) {
       if (!event) {
         this._callbacks = {};
         return this;
@@ -189,7 +192,7 @@ void function () {
   Model.extend(Events);
   Model.extend({
     // 初始化 model 的名字和属性
-    setup: function (name, attrs) {
+    setup: function setup(name, attrs) {
       var model = this._create();
 
       model.name = name || '';
@@ -198,21 +201,21 @@ void function () {
       return model;
     },
 
-    create: function (attrs) {
+    create: function create(attrs) {
       var record = this.init(attrs);
       record.save();
       return record;
     },
 
-    update: function (id, attrs) {
+    update: function update(id, attrs) {
       this.find(id).load(attrs).save();
     },
 
-    destroy: function (id) {
+    destroy: function destroy(id) {
       this.find(id).destroy();
     },
 
-    created: function () {
+    created: function created() {
       // 初始化 records 和 attributes
       // 避免多个类共享同一个 records 或 attributes
       this.records = {};
@@ -231,7 +234,7 @@ void function () {
       }));
     },
 
-    refresh: function (values) {
+    refresh: function refresh(values) {
       this.records = {};
 
       for (var i = 0, len = values.length; i < len; i++) {
@@ -243,16 +246,16 @@ void function () {
       this.trigger('refresh');
     },
 
-    find: function (id) {
+    find: function find(id) {
       var record = this.records[id];
-      return (record ? record.clone() : null);
+      return record ? record.clone() : null;
     },
 
-    sync: function (callback) {
+    sync: function sync(callback) {
       this.listenTo('change', callback);
     },
 
-    fetch: function (callback) {
+    fetch: function fetch(callback) {
       void (callback ? this.listenTo('fetch', callback) : this.trigger('fetch'));
     }
   });
@@ -260,7 +263,7 @@ void function () {
   Model.include({
     isNew: true,
 
-    init: function (attrs) {
+    init: function init(attrs) {
       if (!attrs) return;
 
       for (var attr in attrs) {
@@ -268,27 +271,27 @@ void function () {
       }
     },
 
-    dup: function () {
+    dup: function dup() {
       var record = this.parent.init(this.getAttr());
       record.isNew = this.isNew;
       return record;
     },
 
-    equal: function (record) {
-      return (record && record.id === this.id && record.parent === this.parent);
+    equal: function equal(record) {
+      return record && record.id === this.id && record.parent === this.parent;
     },
 
-    load: function (attrs) {
+    load: function load(attrs) {
       for (var name in attrs) {
         this[name] = attrs[name];
       }
     },
 
-    toJSON: function () {
+    toJSON: function toJSON() {
       return this.getAttr();
     },
 
-    getAttr: function () {
+    getAttr: function getAttr() {
       var attrs = {};
 
       for (var i = 0, len = this.parent.attributes.length; i < len; i++) {
@@ -299,28 +302,28 @@ void function () {
       return attrs;
     },
 
-    updateAttr: function (name, value) {
+    updateAttr: function updateAttr(name, value) {
       this[name] = value;
       return this.save();
     },
 
-    updateAttrs: function (attrs) {
+    updateAttrs: function updateAttrs(attrs) {
       this.load(attrs);
       return this.save();
     },
 
-    save: function () {
+    save: function save() {
       void (this.isNew ? this.create() : this.update());
       this.trigger('save', this);
 
       return this;
     },
 
-    clone: function () {
+    clone: function clone() {
       return Object.create(this);
     },
 
-    create: function () {
+    create: function create() {
       if (!this.id) this.id = Xiaoming.guid();
 
       this.isNew = false;
@@ -330,33 +333,33 @@ void function () {
       this.trigger('create', records[this.id].clone());
     },
 
-    update: function () {
+    update: function update() {
       var records = this.parent.records;
       records[this.id].load(this.getAttr());
       this.trigger('update', records[this.id].clone());
     },
 
-    destroy: function () {
+    destroy: function destroy() {
       delete this.parent.records[this.id];
       this.trigger('destroy', this);
     },
 
     // 实例的监听者事件是挂在构造器（parent）上的
     // 当触发事件时需要用 equal 方法比对参数的 record 和自己的 record 是否一致
-    listenTo: function (events, callback) {
+    listenTo: function listenTo(events, callback) {
       return this.parent.listenTo(events, this.proxy(function (record) {
         if (record && this.equal(record)) callback.apply(this, arguments);
       }));
     },
 
-    trigger: function () {
+    trigger: function trigger() {
       return this.parent.trigger.apply(this.parent, arguments);
     }
   });
 
   // Controller
   var Controller = Xiaoming.Controller = Class.create({
-    initializer: function (options) {
+    initializer: function initializer(options) {
       this.options = options;
 
       for (var option in options) {
@@ -365,9 +368,7 @@ void function () {
 
       if (Xiaoming.isElement(this.el)) {
         this.el = this.el;
-      } else
-
-      this.el = Xiaoming.isElement(this.el) ? this.el : document.createElement(this.el);
+      } else this.el = Xiaoming.isElement(this.el) ? this.el : document.createElement(this.el);
 
       var events = this.events;
 
@@ -387,11 +388,11 @@ void function () {
   Controller.include(Events);
 
   Xiaoming.Http = Class.create({
-    initializer: function() {
+    initializer: function initializer() {
       this.xhr = new XMLHttpRequest();
     },
 
-    create: function(options) {
+    create: function create(options) {
       this.xhr.open(options.method, options.url);
 
       this.xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
@@ -399,45 +400,43 @@ void function () {
       this.xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
       this.xhr.send(JSON.stringify(options.data));
-      this.xhr.onreadystatechange = function() {
+      this.xhr.onreadystatechange = function () {
         var raw;
 
         try {
           raw = JSON.parse(this.xhr.responseText);
-        } catch(e) {
+        } catch (e) {
           console.error('Response type is not valid JSON');
           raw = this.xhr.responseText.body;
         }
 
         if (+this.xhr.readyState === 4) {
-          void (/^[1-3]/.test(+this.xhr.status) ?
-                options.success(raw) :
-                options.fail(raw));
+          void (/^[1-3]/.test(+this.xhr.status) ? options.success(raw) : options.fail(raw));
         }
       };
     },
 
-    get: function(options) {
+    get: function get(options) {
       options.method = 'get';
       return this.create(options);
     },
 
-    post: function(options) {
+    post: function post(options) {
       options.method = 'post';
       return this.create(options);
     },
 
-    update: function(options) {
+    update: function update(options) {
       options.method = 'update';
       return this.create(options);
     },
 
-    patch: function(options) {
+    patch: function patch(options) {
       options.method = 'patch';
       return this.create(options);
     },
 
-    delete: function(options) {
+    'delete': function _delete(options) {
       options.method = 'delete';
       return this.create(options);
     }
@@ -446,5 +445,4 @@ void function () {
   Xiaoming.Http = Xiaoming.Http.init();
 
   window.Xiaoming = Xiaoming;
-}();
-
+})();

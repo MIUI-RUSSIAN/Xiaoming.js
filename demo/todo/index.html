@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <title>Todo</title>
 
-    <link rel="stylesheet" href="http://cdn.staticfile.org/twitter-bootstrap/3.3.0/css/bootstrap.min.css">
+    <!--<link rel="stylesheet" href="http://cdn.staticfile.org/twitter-bootstrap/3.3.0/css/bootstrap.min.css">-->
   </head>
   <body id="view" class="container">
-    <script id="todo-tmpl" type="text/template">
+    <script id="tmpl-todo" type="text/template">
       {@if done}
-      <p><input type="checkbox" checked>${content}<i class="glyphicon glyphicon-remove remove"></i></p>
+        <p><input type="checkbox" checked>${content}<i class="glyphicon glyphicon-remove remove"></i></p>
       {@else}
-      <p><input type="checkbox">${content}<i class="glyphicon glyphicon-remove remove"></i></p>
+        <p><input type="checkbox">${content}<i class="glyphicon glyphicon-remove remove"></i></p>
       {@/if}
     </script>
 
@@ -26,10 +26,11 @@
       </div>
     </form>
 
-    <div class="items"></div>
+    <ul class="todo-list"></ul>
 
-    <script src="../bower_components/xiaoming.js/src/juicer.js"></script>
-    <script src="../bower_components/xiaoming.js/src/xiaoming.js"></script>
+    <script src="../../src/juicer.js"></script>
+    <script src="../../dist/xiaoming.js"></script>
+    <script src="../../dist/element.js"></script>
     <script src="app.js"></script>
   </body>
 </html>

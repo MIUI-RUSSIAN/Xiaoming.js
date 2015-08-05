@@ -1,69 +1,32 @@
-var exports = this;
+var Model = Xiaoming.Model.setup('TodoModel', ['content', 'done']);
 
-  var TodoModel = Xiaoming.Model.setup('todo', ['content', 'done']);
-
-  exports.Todos = Xiaoming.Controller.create({
-    init: function () {
-      this.item.listenTo('destroy', this.proxy(this.remove));
-    },
-
-    events: {
-      'click .remove': 'destroy'
-    },
-
-    template: function (data) {
-      return juicer(document.getElementById('todo-tmpl').innerHTML, data);
-    },
-
-    render: function () {
-      this.el.html(this.template(this.item));
-      return this;
-    },
-
-    remove: function () {
-      this.el.remove();
-    },
-
-    destroy: function () {
-      this.item.destroy();
-    }
+Model.fetch(function() {
+  [{content: 123, done: false}].forEach(function(todo) {
+    Model.create(todo);
   });
+});
 
-  exports.TodoList = Xiaoming.Controller.create({
-    init: function () {
-      this.$items = document.querySelectorAll('.items');
-      this.$input = document.querySelectorAll('.input');
+var Todos = Xiaoming.Controller.create({
+  el: 'li',
+  template: function(data) {
+    return juicer(document.getElementById('tmpl-todo').innerHTML, data);
+  },
+  render: function() {
+    this.el.innerHTML = this.template(this.item);
+    return this;
+  }
+});
 
-      TodoModel.listenTo('create', this.proxy(this.addOne))
-    },
+var TodoList = Xiaoming.Controller.create({
+  el: document.getElementsByClassName('todo-list')[0],
+  init: function() {
+    Model.listenTo('create', this.proxy(this.addOne));
+    Model.fetch();
+  },
+  addOne: function(todo) {
+    var view = Todos.init({item: todo});
+    this.el.appendChild(view.render().el);
+  }
+});
 
-    events: {
-      'submit form': 'create'
-    },
-
-    create: function (e) {
-      e.preventDefault();
-
-      var content = this.$input.val().trim();
-
-      if (!content) return;
-
-      TodoModel.create({content: content, done: false});
-
-      this.$input.setAttribute('value', '');
-    },
-
-    addOne: function (record) {
-      var view = Todos.init({item: record});
-      this.$items.append(view.render().el);
-    }
-  });
-
-  exports.App = Xiaoming.Controller.create({
-    el: 'body',
-    init: function () {
-      TodoList.init({el: '#view'});
-    }
-  });
-
-  App.init();
+TodoList.init();

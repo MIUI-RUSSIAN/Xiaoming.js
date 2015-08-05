@@ -1,14 +1,15 @@
-var Xiaoming = Xiaoming || {};
-
-Xiaoming.query = function(selector) {
+Xiaoming.query = (selector) => {
   if (typeof selector !== 'string') return new Error('Selector has to be string');
 
   var dom;
 
+  // id 选择器
   if (/^#/.test(selector)) {
-    dom = document.getElementById(selector);
+    dom = document.getElementById(selector.replace(/^#/, ''));
+  // class 选择器
   } else if (/^\./.test(selector)) {
-    dom = document.getElementsByClassName(selector);
+    dom = document.getElementsByClassName(selector.replace(/^\./, ''));
+  // 标签选择器
   } else {
     dom = document.getElementsByTagName(selector);
   }
@@ -22,7 +23,7 @@ Xiaoming.Element = Xiaoming.Class.create();
 
 Xiaoming.Element.extend(Xiaoming.Events);
 
-Xiaoming.Element.extend({
+Xiaoming.Element.include({
   on: function(event, callback, data) {
     var self = this;
 
