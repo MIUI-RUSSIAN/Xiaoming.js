@@ -363,10 +363,6 @@ void function () {
         this[option] = options[option];
       }
 
-      if (Xiaoming.isElement(this.el)) {
-        this.el = this.el;
-      } else
-
       this.el = Xiaoming.isElement(this.el) ? this.el : document.createElement(this.el);
 
       var events = this.events;
