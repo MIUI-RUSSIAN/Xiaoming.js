@@ -388,13 +388,22 @@ void function () {
     },
 
     create: function(options) {
-      this.xhr.open(options.method, options.url);
+      if (!options.method || !options.url) throw new Error('Request method and url can\'t be empty');
 
-      this.xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-      this.xhr.setRequestHeader('Accept', 'application/json');
+      var data = options.data || {};
+
+      this.xhr.open(options.method, options.url);
       this.xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
-      this.xhr.send(JSON.stringify(options.data));
+      if (options.dataType && options.dataType.toLowerCase() === 'json') {
+        this.xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+        this.xhr.setRequestHeader('Accept', 'application/json');
+        data = JSON.stringify(data);
+      }
+
+      if (options.withCredentials) this.xhr.withCredentials = true;
+
+      this.xhr.send(data);
       this.xhr.onreadystatechange = () => {
         if (+this.xhr.readyState === 4) {
           var raw;
@@ -402,7 +411,7 @@ void function () {
           try {
             raw = JSON.parse(this.xhr.responseText);
           } catch(e) {
-            console.error('Response type is not valid JSON');
+            if (options.dataType && options.dataType.toLowerCase() === 'json')console.error('Response type is not valid JSON');
             raw = this.xhr.responseText;
           }
 
