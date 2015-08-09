@@ -389,6 +389,8 @@ void function () {
 
     create: function(options) {
       if (!options.method || !options.url) throw new Error('Request method and url can\'t be empty');
+      if (options.success && typeof options.success !== 'function') throw new Error('Resolve Callback has to be a function');
+      if (options.fail && typeof options.fail !== 'function') throw new Error('Reject Callback has to be a function');
 
       var data = options.data || {};
 
@@ -411,13 +413,13 @@ void function () {
           try {
             raw = JSON.parse(this.xhr.responseText);
           } catch(e) {
-            if (options.dataType && options.dataType.toLowerCase() === 'json')console.error('Response type is not valid JSON');
+            if (options.dataType && options.dataType.toLowerCase() === 'json') console.error('Response type is not valid JSON');
             raw = this.xhr.responseText;
           }
 
           void (/^[1-3]/.test(+this.xhr.status) ?
-                options.success(raw.body) :
-                options.fail(raw.body));
+                opitons.success && options.success(raw.body) :
+                options.fail && options.fail(raw.body));
         }
       };
     },
