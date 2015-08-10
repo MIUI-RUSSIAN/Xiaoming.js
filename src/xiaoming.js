@@ -369,13 +369,13 @@ void function () {
 
       // 绑定 "事件" 同 "视图"
       for (var i in events) {
-        if (events.hasOwnProperty(i)) {
-          var item = i.split(' ');
-          var event = item.shift();
-          var element = item.pop();
+        var item = i.split(' ');
+        var event = item.shift();
+        var element = item.pop();
 
-          this.el.on(event, element, this.proxy(this[events[i]]));
-        }
+        this.el.addEventListener(event, (e) => {
+          if (e.target.tagName.toLowerCase() === element) this[events[i]];
+        });
       }
     }
   });
