@@ -1,10 +1,10 @@
 void function () {
   var Xiaoming = {};
 
-  Xiaoming.version = "0.0.1";
+  Xiaoming.version = '0.0.1';
   Xiaoming.noop = function() {};
 
-  // Object.create 方法兼容 IE9 以下
+  // Object.create 兼容 < IE9
   if (!Object.create) {
     Object.create = function (klass) {
       function f() {}
@@ -13,13 +13,20 @@ void function () {
     };
   }
 
+  // Array.isArray 兼容 < IE9
+  if (!Array.isArray) {
+    Array.isArray = function(array) {
+      return Object.prototype.toString.call(array) === '[object Array]';
+    };
+  }
+
   Xiaoming.copy = function(source) {
-    if (typeof source !== 'object' && Object.prototype.toString.call(source) !== '[object Array]') return source;
+    if (typeof source !== 'object' && !Array.isArray(source) ) return source;
 
     var result = {};
 
     for (var key in source) {
-      if (Object.prototype.toString.call(source[key]) === '[object Array]' && source[key].length) {
+      if (isArray(source[key])) {
         result[key] = [];
         source[key].forEach(function(value) {
           result[key].push(value);

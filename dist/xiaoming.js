@@ -3,10 +3,10 @@
 void (function () {
   var Xiaoming = {};
 
-  Xiaoming.version = "0.0.1";
+  Xiaoming.version = '0.0.1';
   Xiaoming.noop = function () {};
 
-  // Object.create 方法兼容 IE9 以下
+  // Object.create 兼容 < IE9
   if (!Object.create) {
     Object.create = function (klass) {
       function f() {}
@@ -15,13 +15,20 @@ void (function () {
     };
   }
 
+  // Array.isArray 兼容 < IE9
+  if (!Array.isArray) {
+    Array.isArray = function (array) {
+      return Object.prototype.toString.call(array) === '[object Array]';
+    };
+  }
+
   Xiaoming.copy = function (source) {
-    if (typeof source !== 'object' && Object.prototype.toString.call(source) !== '[object Array]') return source;
+    if (typeof source !== 'object' && !Array.isArray(source)) return source;
 
     var result = {};
 
     for (var key in source) {
-      if (Object.prototype.toString.call(source[key]) === '[object Array]' && source[key].length) {
+      if (isArray(source[key])) {
         result[key] = [];
         source[key].forEach(function (value) {
           result[key].push(value);
@@ -360,6 +367,8 @@ void (function () {
   // Controller
   var Controller = Xiaoming.Controller = Class.create({
     initializer: function initializer(options) {
+      var _this = this;
+
       this.options = options;
 
       for (var option in options) {
@@ -372,13 +381,13 @@ void (function () {
 
       // 绑定 "事件" 同 "视图"
       for (var i in events) {
-        if (events.hasOwnProperty(i)) {
-          var item = i.split(' ');
-          var event = item.shift();
-          var element = item.pop();
+        var item = i.split(' ');
+        var event = item.shift();
+        var element = item.pop();
 
-          this.el.on(event, element, this.proxy(this[events[i]]));
-        }
+        this.el.addEventListener(event, function (e) {
+          if (e.target.tagName.toLowerCase() === element) _this[events[i]];
+        });
       }
     }
   });
@@ -391,27 +400,38 @@ void (function () {
     },
 
     create: function create(options) {
-      var _this = this;
+      var _this2 = this;
+
+      if (!options.method || !options.url) throw new Error('Request method and url can\'t be empty');
+      if (options.success && typeof options.success !== 'function') throw new Error('Resolve Callback has to be a function');
+      if (options.fail && typeof options.fail !== 'function') throw new Error('Reject Callback has to be a function');
+
+      var data = options.data || {};
 
       this.xhr.open(options.method, options.url);
-
-      this.xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
-      this.xhr.setRequestHeader('Accept', 'application/json');
       this.xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
 
-      this.xhr.send(JSON.stringify(options.data));
+      if (options.dataType && options.dataType.toLowerCase() === 'json') {
+        this.xhr.setRequestHeader('Content-type', 'application/json; charset=utf-8');
+        this.xhr.setRequestHeader('Accept', 'application/json');
+        data = JSON.stringify(data);
+      }
+
+      if (options.withCredentials) this.xhr.withCredentials = true;
+
+      this.xhr.send(data);
       this.xhr.onreadystatechange = function () {
-        if (+_this.xhr.readyState === 4) {
+        if (+_this2.xhr.readyState === 4) {
           var raw;
 
           try {
-            raw = JSON.parse(_this.xhr.responseText);
+            raw = JSON.parse(_this2.xhr.responseText);
           } catch (e) {
-            console.error('Response type is not valid JSON');
-            raw = _this.xhr.responseText.body;
+            if (options.dataType && options.dataType.toLowerCase() === 'json') console.error('Response type is not valid JSON');
+            raw = _this2.xhr.responseText;
           }
 
-          void (/^[1-3]/.test(+_this.xhr.status) ? options.success(raw) : options.fail(raw));
+          void (/^[1-3]/.test(+_this2.xhr.status) ? opitons.success && options.success(raw.body) : options.fail && options.fail(raw.body));
         }
       };
     },

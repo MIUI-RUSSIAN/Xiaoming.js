@@ -1,75 +1,19 @@
 ## Xiaoming
 
-> out-of-style mvc(seriously it's M & C) framework
+> Out-of-style mvc(technically it's M&C) framework
 
-### Xiaoming.Class
+## 重要的事情说三遍
 
-`create(include, extend)`
+![never use in production](https://camo.githubusercontent.com/27c40e462894112f77f5813afe7107d43df285fc/687474703a2f2f626c6f672e6d6765636865762e636f6d2f696d616765732f6e6f2d70726f64756374696f6e2e676966)
 
-| 参数名 | 类型 | 描述 |
-| ------ | ---- | ---- |
-| include | Object | 实例方法 |
-| extend | Object | 构造函数方法 |
+**I will never use this in production**
+**I will never use this in production**
+**I will never use this in production**
 
-返回一个 Class 的新实例
+## Document
 
-``
+[Document](https://github.com)
 
-`extend(options)`
+## License
 
-| 参数名 | 类型 | 描述 |
-| ------ | ---- | ---- |
-| options | Object | 实例方法 |
-
-可以传入键为 extended 的函数, 将在 extend 完成后调用
-
-`include(options)`
-
-| 参数名 | 类型 | 描述 |
-| ------ | ---- | ---- |
-| options | Object | 实例方法 |
-
-可以传入键为 included 的函数, 将在 extend 完成后调用
-
-`proxy(func)`
-
-| 参数名 | 类型 | 描述 |
-| ------ | ---- | ---- |
-| func | function | 需要显式设置作用域的函数 |
-
-`func` 的作用域将被设置到当前的 this
-
-### Xiaoming.Events
-
-`listenTo(event, callback)`
-
-`stopListenTo(event, callback)`
-
-`trigger(event)`
-
-`one(event, callback)`
-
-### Xiaoming.Model
-
-`setup(name, attrs)`
-
-`create(attrs)`
-
-`update(id, attrs)`
-
-`destroy(id)`
-
-`refresh()`
-
-`find(id)`
-
-`sync(callback)`
-
-`fetch(callback)`
-
-### Xiaomng.Controller
-
-好像没有什么卵用，纯粹堆业务代码的地方
-
-### Demos
-[Demos](!http://klamtlne.github.io/Xiaoming.Examples/)
+MIT
